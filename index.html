@@ -616,27 +616,39 @@
             }
         });
 
-        // --- Global Mouse Tracking ---
+        // --- Global Mouse + Touch Tracking ---
         const mouse = { x: null, y: null };
         const cursorGlow = document.getElementById('cursor-glow');
 
-        window.addEventListener('mousemove', (e) => {
-            mouse.x = e.clientX;
-            mouse.y = e.clientY;
-
+        function updatePointer(x, y) {
+            mouse.x = x;
+            mouse.y = y;
             if (cursorGlow) {
                 cursorGlow.style.opacity = '1';
                 const isDark = document.body.classList.contains('dark-mode');
                 const glowColor = isDark ? 'transparent' : 'rgba(120, 119, 198, 0.12)';
-                cursorGlow.style.background = `radial-gradient(circle 700px at ${mouse.x}px ${mouse.y}px, ${glowColor}, transparent 80%)`;
+                cursorGlow.style.background = `radial-gradient(circle 700px at ${x}px ${y}px, ${glowColor}, transparent 80%)`;
             }
-        });
+        }
 
-        window.addEventListener('mouseout', () => {
+        function clearPointer() {
             mouse.x = null;
             mouse.y = null;
             if (cursorGlow) cursorGlow.style.opacity = '0';
-        });
+        }
+
+        // Mouse
+        window.addEventListener('mousemove', (e) => updatePointer(e.clientX, e.clientY));
+        window.addEventListener('mouseout', clearPointer);
+
+        // Touch
+        window.addEventListener('touchmove', (e) => {
+            const touch = e.touches[0];
+            updatePointer(touch.clientX, touch.clientY);
+        }, { passive: true });
+
+        window.addEventListener('touchend', clearPointer);
+        window.addEventListener('touchcancel', clearPointer);
 
         // --- Dark Mode: Starry Canvas ---
         const canvas = document.createElement('canvas');
