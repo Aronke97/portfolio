@@ -7,6 +7,22 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    
+    <!-- SEO & Social Meta Tags -->
+    <meta name="description" content="Aron Ke | Cybersecurity Student & Aspiring Ethical Hacker. Passionate about building clean, modern UIs and secure interfaces.">
+    <meta name="keywords" content="Aron Ke, Cybersecurity, Ethical Hacking, Frontend Developer, UI Design, Portfolio">
+    <meta name="author" content="Aron Ke">
+    <meta name="robots" content="index, follow">
+    
+    <!-- Open Graph / Meta -->
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Aron Ke | Portfolio & Cybersecurity Journey">
+    <meta property="og:description" content="Cybersecurity Student & Aspiring Ethical Hacker | Passionate about building clean, modern UIs. Explore my projects and skills.">
+    <meta property="og:url" content="https://github.com/aronkedev/portfolio">
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Aron Ke | Portfolio">
+    <meta name="twitter:description" content="Cybersecurity Student & Aspiring Ethical Hacker | Passionate about building clean, modern UIs.">
     <style>
         :root {
             /* Light Theme Variables */
@@ -164,6 +180,19 @@
             font-weight: 600;
         }
 
+        .glass-nav a.active-link::after {
+            content: '';
+            position: absolute;
+            bottom: 0px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 12px;
+            height: 2px;
+            background-color: var(--accent-color);
+            border-radius: 2px;
+            box-shadow: 0 0 8px var(--accent-color);
+        }
+
         body.dark-mode .glass-nav a.active-link {
             text-shadow: 0 0 12px rgba(255, 255, 255, 0.35);
         }
@@ -257,6 +286,15 @@
             max-width: 760px;
             margin: 0 auto;
             padding: 120px 24px 100px;
+            transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1), filter 0.6s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.6s ease;
+        }
+
+        /* iOS-style minimizing for the background when modal is open */
+        body.modal-open .container {
+            transform: scale(0.965) translateY(-10px);
+            filter: blur(6px) brightness(0.85);
+            opacity: 0.65;
+            pointer-events: none;
         }
 
         h2 {
@@ -461,27 +499,37 @@
 
         .modal-content {
             background-color: var(--surface-color);
-            -webkit-backdrop-filter: blur(12px);
-            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(16px);
+            backdrop-filter: blur(16px);
             border: 1px solid var(--border-color);
-            border-radius: 18px;
+            border-radius: 24px;
             padding: 40px;
             max-width: 580px;
             width: 90%;
             position: relative;
-            transform: scale(0.92) translateY(8px);
+            /* Initial state for "Genie Warp" (vacuum distortion) */
+            transform-origin: center;
+            transform: translate(var(--genie-x, 0), var(--genie-y, 0)) 
+                       scale(0) 
+                       /* skewX preserves the "vacuum" feel without the twist */
+                       skewX(var(--genie-s, 0deg));
             opacity: 0;
-            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.2), opacity 0.3s ease;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.12);
+            transition: transform 0.65s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.45s ease;
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.2);
         }
 
-        body.dark-mode .modal-content {
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.55);
+        /* Snappy "vacuum" closure when modal is dismissed */
+        .modal-overlay:not(.active) .modal-content {
+            transition: transform 0.45s cubic-bezier(0.4, 0, 0.6, 1), opacity 0.3s ease;
         }
 
         .modal-overlay.active .modal-content {
-            transform: scale(1) translateY(0);
+            transform: translate(0, 0) scale(1) skewX(0deg);
             opacity: 1;
+        }
+
+        body.dark-mode .modal-content {
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.55);
         }
 
         .modal-close {
@@ -642,48 +690,58 @@
         }
 
         /* Copy Email */
-        .email-copy-wrapper {
-            display: flex;
+        .email-display-wrapper {
+            display: inline-flex;
             align-items: center;
             gap: 12px;
-            flex-wrap: wrap;
-            margin-top: 8px;
-        }
-
-        .email-display {
-            font-size: 0.925rem;
-            color: var(--text-muted);
             background: var(--surface-color);
             border: 1px solid var(--border-color);
             padding: 10px 16px;
             border-radius: 8px;
-            letter-spacing: 0.01em;
             backdrop-filter: blur(12px);
             -webkit-backdrop-filter: blur(12px);
+            transition: border-color 0.2s ease, background-color 0.2s ease;
         }
 
-        .copy-btn {
-            padding: 10px 18px;
-            border-radius: 8px;
-            border: 1px solid var(--border-color);
-            background-color: var(--bg-color);
-            color: var(--text-main);
-            font-family: 'Inter', sans-serif;
-            font-size: 0.875rem;
-            font-weight: 500;
-            cursor: pointer;
-            transition: background-color 0.2s ease, transform 0.2s ease, border-color 0.2s ease;
-        }
-
-        .copy-btn:hover {
-            background-color: var(--hover-color);
+        .email-display-wrapper:hover {
             border-color: var(--text-muted);
-            transform: translateY(-1px);
+            background-color: var(--hover-color);
         }
 
-        .copy-btn.copied {
+        .email-display {
+            font-size: 0.925rem;
+            color: var(--text-main);
+            letter-spacing: 0.01em;
+            text-decoration: none;
+        }
+
+        .copy-icon-btn {
+            background: none;
+            border: none;
+            padding: 4px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-muted);
+            transition: color 0.2s ease, transform 0.2s ease;
+            border-radius: 4px;
+        }
+
+        .copy-icon-btn:hover {
+            color: var(--text-main);
+            background-color: var(--hover-color);
+            transform: scale(1.1);
+        }
+
+        .copy-icon-btn svg {
+            width: 16px;
+            height: 16px;
+            fill: currentColor;
+        }
+
+        .copy-icon-btn.copied {
             color: #4ade80;
-            border-color: #4ade80;
         }
     </style>
 </head>
@@ -718,9 +776,9 @@
         <section id="home" class="active-section">
             <div style="text-align: center; padding: 120px 0;">
                 <h1 style="font-size: 3.25rem; margin-bottom: 20px; color: var(--text-main); letter-spacing: -0.035em; font-weight: 600;">Aron Ke</h1>
-                <p style="font-size: 1.1rem; max-width: 520px; margin: 0 auto; color: var(--text-muted); line-height: 1.6;">Frontend Developer with an interest in Cybersecurity</p>
+                <p style="font-size: 1.1rem; max-width: 520px; margin: 0 auto; color: var(--text-muted); line-height: 1.6;">Cybersecurity Student & Aspiring Ethical Hacker | Passionate about building clean, modern UIs</p>
                 <div style="margin-top: 40px;">
-                    <a href="#work" class="github-link nav-link" style="padding: 12px 24px; font-size: 0.95rem;">View My Work</a>
+                    <a href="#work" class="github-link hero-btn" style="padding: 12px 24px; font-size: 0.95rem;">View My Work</a>
                 </div>
                 <div class="social-icons">
                     <!-- GitHub -->
@@ -732,11 +790,11 @@
                         <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.064 2.064 0 1 1 2.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
                     </a>
                     <!-- Twitter -->
-                    <a href="https://twitter.com/placeholder" target="_blank" class="social-icon" aria-label="Twitter / X">
+                    <a href="https://x.com/aronkedev" target="_blank" class="social-icon" aria-label="Twitter / X">
                         <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.747l7.73-8.835L1.254 2.25H8.08l4.253 5.622zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
                     </a>
                     <!-- Instagram -->
-                    <a href="https://instagram.com/placeholder" target="_blank" class="social-icon" aria-label="Instagram">
+                    <a href="https://www.instagram.com/aron_ke_/" target="_blank" class="social-icon" aria-label="Instagram">
                         <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838a6.162 6.162 0 1 0 0 12.324 6.162 6.162 0 0 0 0-12.324zM12 16a4 4 0 1 1 0-8 4 4 0 0 1 0 8zm6.406-11.845a1.44 1.44 0 1 0 0 2.881 1.44 1.44 0 0 0 0-2.881z"/></svg>
                     </a>
                 </div>
@@ -749,7 +807,7 @@
             <div class="projects-grid">
                 <div class="project-card">
                     <h3>Who I Am</h3>
-                    <p>I'm Aron — a frontend developer who enjoys building clean, functional interfaces. I care about the small details that make a UI feel right.</p>
+                    <p>I'm Aron Ke — a Cybersecurity student with a deep interest in ethical hacking. I also enjoy building clean, modern UIs and functional interfaces that are secure by design.</p>
                 </div>
                 <div class="project-card">
                     <h3>What I'm Working On</h3>
@@ -762,13 +820,15 @@
         <section id="skills">
             <h2>Skills</h2>
             <div class="projects-grid">
-                <div class="project-card skill-card" data-skill-id="frontend">
-                    <h3>Frontend Development</h3>
-                    <p>HTML, CSS, and JavaScript — building responsive, accessible UIs with attention to layout, typography, and interaction.</p>
-                </div>
+                <!-- Cybersecurity Basics (Now First) -->
                 <div class="project-card skill-card" data-skill-id="cybersecurity">
                     <h3>Cybersecurity Basics</h3>
                     <p>Network fundamentals, basic vulnerability concepts, and hands-on exploration through CTFs and home lab work.</p>
+                </div>
+                <!-- Frontend Development (Now Second) -->
+                <div class="project-card skill-card" data-skill-id="frontend">
+                    <h3>Frontend Development</h3>
+                    <p>HTML, CSS, and JavaScript — building responsive, accessible UIs with attention to layout, typography, and interaction.</p>
                 </div>
             </div>
         </section>
@@ -834,12 +894,15 @@
                 <div class="project-card">
                     <h3>Get In Touch</h3>
                     <p>Open to opportunities, collaborations, or just a chat about tech.</p>
-                    <div class="email-copy-wrapper">
-                        <span class="email-display">aronemsy@gmail.com</span>
-                        <button class="copy-btn" id="copy-btn" onclick="copyEmail()">Copy Email</button>
-                    </div>
-                    <div style="margin-top: 20px;">
-                        <a href="https://linkedin.com/in/aronke" target="_blank" class="github-link">LinkedIn Profile</a>
+                    <div style="margin-top: 8px;">
+                        <div class="email-display-wrapper">
+                            <a href="mailto:aronemsy@gmail.com" class="email-display">aronemsy@gmail.com</a>
+                            <button class="copy-icon-btn" id="copy-icon-btn" onclick="copyEmail('aronemsy@gmail.com')" aria-label="Copy Email">
+                                <svg id="copy-svg" title="Copy" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M19,21H8V7H19M19,5H8A2,2 0 0,0 6,7V21A2,2 0 0,0 8,23H19A2,2 0 0,0 21,21V7A2,2 0 0,0 21,5M16,1H4A2,2 0 0,0 2,3V17H4V3H16V1Z" />
+                                </svg>
+                            </button>
+                        </div>
                     </div>
                     <div class="social-icons" style="justify-content: flex-start; margin-top: 24px;">
                         <a href="https://github.com/aronkedev" target="_blank" class="social-icon" aria-label="GitHub">
@@ -848,10 +911,10 @@
                         <a href="https://linkedin.com/in/aronke" target="_blank" class="social-icon" aria-label="LinkedIn">
                             <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.064 2.064 0 1 1 2.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
                         </a>
-                        <a href="https://twitter.com/placeholder" target="_blank" class="social-icon" aria-label="Twitter / X">
+                        <a href="https://x.com/aronkedev" target="_blank" class="social-icon" aria-label="Twitter / X">
                             <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.747l7.73-8.835L1.254 2.25H8.08l4.253 5.622zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
                         </a>
-                        <a href="https://instagram.com/placeholder" target="_blank" class="social-icon" aria-label="Instagram">
+                        <a href="https://www.instagram.com/aron_ke_/" target="_blank" class="social-icon" aria-label="Instagram">
                             <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838a6.162 6.162 0 1 0 0 12.324 6.162 6.162 0 0 0 0-12.324zM12 16a4 4 0 1 1 0-8 4 4 0 0 1 0 8zm6.406-11.845a1.44 1.44 0 1 0 0 2.881 1.44 1.44 0 0 0 0-2.881z"/></svg>
                         </a>
                     </div>
@@ -891,16 +954,37 @@
         const mouse = { x: null, y: null };
         const cursorGlow = document.getElementById('cursor-glow');
 
+        // --- Throttled Pointer Update ---
+        let targetX = null;
+        let targetY = null;
+        let currentX = 0;
+        let currentY = 0;
+
         function updatePointer(x, y) {
-            mouse.x = x;
-            mouse.y = y;
-            if (cursorGlow) {
-                cursorGlow.style.opacity = '1';
+            targetX = x;
+            targetY = y;
+            if (cursorGlow) cursorGlow.style.opacity = '1';
+        }
+
+        function clearPointer() {
+            targetX = null;
+            targetY = null;
+            if (cursorGlow) cursorGlow.style.opacity = '0';
+        }
+
+        function renderPointer() {
+            if (targetX !== null && cursorGlow) {
+                // Smooth interpolation (optional, but requested for "glow" feel)
+                currentX += (targetX - currentX) * 0.15;
+                currentY += (targetY - currentY) * 0.15;
+                
                 const isDark = document.body.classList.contains('dark-mode');
                 const glowColor = isDark ? 'transparent' : 'rgba(120, 119, 198, 0.12)';
-                cursorGlow.style.background = `radial-gradient(circle 700px at ${x}px ${y}px, ${glowColor}, transparent 80%)`;
+                cursorGlow.style.background = `radial-gradient(circle 700px at ${currentX}px ${currentY}px, ${glowColor}, transparent 80%)`;
             }
+            requestAnimationFrame(renderPointer);
         }
+        renderPointer();
 
         function clearPointer() {
             mouse.x = null;
@@ -909,7 +993,11 @@
         }
 
         // Mouse
-        window.addEventListener('mousemove', (e) => updatePointer(e.clientX, e.clientY));
+        window.addEventListener('mousemove', (e) => {
+            mouse.x = e.clientX;
+            mouse.y = e.clientY;
+            updatePointer(e.clientX, e.clientY);
+        });
         window.addEventListener('mouseout', clearPointer);
 
         // Touch
@@ -942,7 +1030,10 @@
             '255, 245, 230'
         ];
 
-        for (let i = 0; i < 250; i++) {
+        const isMobile = window.innerWidth < 768;
+        const starCount = isMobile ? 120 : 250;
+
+        for (let i = 0; i < starCount; i++) {
             stars.push({
                 x: Math.random() * width,
                 y: Math.random() * height,
@@ -956,6 +1047,11 @@
         }
 
         function animateStars() {
+            if (!document.body.classList.contains('dark-mode')) {
+                requestAnimationFrame(animateStars);
+                return;
+            }
+
             ctx.clearRect(0, 0, width, height);
             stars.forEach(star => {
                 star.alpha += star.fadeRate * star.fadeDir;
@@ -988,8 +1084,9 @@
                 ctx.arc(star.x, star.y, star.radius, 0, Math.PI * 2);
                 ctx.fillStyle = `rgba(${star.color}, ${star.alpha})`;
 
-                if (star.radius > 0.8) {
-                    ctx.shadowBlur = star.radius * 5;
+                // Optimization: Only larger stars get shadows, and less intensely
+                if (star.radius > 1.1) {
+                    ctx.shadowBlur = star.radius * 4;
                     ctx.shadowColor = `rgba(${star.color}, ${star.alpha})`;
                 } else {
                     ctx.shadowBlur = 0;
@@ -1014,7 +1111,9 @@
         window.addEventListener('resize', initTechCanvas);
         initTechCanvas();
 
-        for (let i = 0; i < 80; i++) {
+        const nodeCount = isMobile ? 35 : 80;
+
+        for (let i = 0; i < nodeCount; i++) {
             techNodes.push({
                 x: Math.random() * techCanvas.width,
                 y: Math.random() * techCanvas.height,
@@ -1025,6 +1124,11 @@
         }
 
         function animateTechNodes() {
+            if (document.body.classList.contains('dark-mode')) {
+                requestAnimationFrame(animateTechNodes);
+                return;
+            }
+
             lCtx.clearRect(0, 0, techCanvas.width, techCanvas.height);
 
             if (!document.body.classList.contains('dark-mode')) {
@@ -1044,8 +1148,9 @@
                     if (mouse.x !== null) {
                         let mx = node.x - mouse.x;
                         let my = node.y - mouse.y;
-                        let mDist = Math.sqrt(mx * mx + my * my);
-                        if (mDist < 180) {
+                        let mSqDist = mx * mx + my * my;
+                        if (mSqDist < 32400) { // 180^2
+                            let mDist = Math.sqrt(mSqDist);
                             lCtx.beginPath();
                             lCtx.strokeStyle = `rgba(17, 17, 17, ${0.35 * (1 - mDist / 180)})`;
                             lCtx.lineWidth = 0.8;
@@ -1059,9 +1164,10 @@
                         let nodeB = techNodes[j];
                         let dx = node.x - nodeB.x;
                         let dy = node.y - nodeB.y;
-                        let dist = Math.sqrt(dx * dx + dy * dy);
+                        let sqDist = dx * dx + dy * dy;
 
-                        if (dist < 120) {
+                        if (sqDist < 14400) { // 120^2
+                            let dist = Math.sqrt(sqDist);
                             lCtx.beginPath();
                             lCtx.strokeStyle = `rgba(17, 17, 17, ${0.12 * (1 - dist / 120)})`;
                             lCtx.lineWidth = 0.8;
@@ -1103,18 +1209,22 @@
             setActiveLink(hash);
         });
 
+        // Unified section switching
+        function switchSection(targetId) {
+            sections.forEach(sec => sec.classList.remove('active-section'));
+            const targetSection = document.getElementById(targetId);
+            if (targetSection) {
+                targetSection.classList.add('active-section');
+                window.history.pushState(null, null, `#${targetId}`);
+                setActiveLink(targetId);
+            }
+        }
+
         navLinks.forEach(link => {
             link.addEventListener('click', (e) => {
                 e.preventDefault();
                 const targetId = link.getAttribute('href').substring(1);
-
-                sections.forEach(sec => sec.classList.remove('active-section'));
-                const targetSection = document.getElementById(targetId);
-                if (targetSection) {
-                    targetSection.classList.add('active-section');
-                    window.history.pushState(null, null, `#${targetId}`);
-                    setActiveLink(targetId);
-                }
+                switchSection(targetId);
             });
 
             link.addEventListener('mouseenter', (e) => {
@@ -1129,44 +1239,27 @@
             });
         });
 
+        // Hide blob when not hovering the nav bar
         navContainer.addEventListener('mouseleave', () => {
             navBlob.style.opacity = '0';
         });
 
-        // --- Scroll-Spy: Blob slides to active nav link ---
-        function updateBlobToActive() {
-            const activeLink = document.querySelector('.nav-link.active-link');
-            if (activeLink) {
-                const rect = activeLink.getBoundingClientRect();
-                const containerRect = navContainer.getBoundingClientRect();
-                navBlob.style.opacity = '1';
-                navBlob.style.width = `${rect.width}px`;
-                navBlob.style.left = `${rect.left - containerRect.left}px`;
-                navBlob.style.height = `${rect.height}px`;
-            }
-        }
-
-        // Update blob whenever active link changes
-        const originalSetActiveLink = setActiveLink;
-        function setActiveLinkAndBlob(id) {
-            originalSetActiveLink(id);
-            setTimeout(updateBlobToActive, 10);
-        }
-
-        // Override clicks to also update blob
-        navLinks.forEach(link => {
-            link.addEventListener('click', () => {
-                setTimeout(updateBlobToActive, 20);
+        // Hero Button Handling
+        const heroBtn = document.querySelector('.hero-btn');
+        if (heroBtn) {
+            heroBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                const targetId = heroBtn.getAttribute('href').substring(1);
+                switchSection(targetId);
             });
-        });
+        }
 
-        // Blob fades when hovering nav, returns on mouseleave
-        navContainer.addEventListener('mouseleave', () => {
-            updateBlobToActive();
-        });
-
-        // Init blob on load
-        setTimeout(updateBlobToActive, 100);
+        // No longer sliding blob automatically - it's now hover-only
+        // for a cleaner, less distracting feel.
+        function updateBlobToActive() {
+            // This is kept as a helper for potential hover overrides
+            // but the automatic "slide back" on mouseleave is removed.
+        }
 
         // --- Gravity Glow: Cards follow cursor ---
         document.querySelectorAll('.project-card').forEach(card => {
@@ -1198,29 +1291,54 @@
         };
 
         skillCards.forEach(card => {
-            card.addEventListener('click', () => {
+            card.addEventListener('click', (e) => {
                 const skillId = card.getAttribute('data-skill-id');
                 if (skillData[skillId]) {
+                    // Calculate "Genie Effect" positions
+                    const cardRect = card.getBoundingClientRect();
+                    const cardCenterX = cardRect.left + cardRect.width / 2;
+                    const cardCenterY = cardRect.top + cardRect.height / 2;
+                    const screenCenterX = window.innerWidth / 2;
+                    const screenCenterY = window.innerHeight / 2;
+
+                    // Set CSS variables for the starting point
+                    const dx = cardCenterX - screenCenterX;
+                    const dy = cardCenterY - screenCenterY;
+                    
+                    // Distortion Logic: Skew based on direction (No rotation)
+                    const dist = Math.sqrt(dx * dx + dy * dy);
+                    const skew = Math.min((dist / screenCenterX) * 20, 25); 
+
+                    const content = modal.querySelector('.modal-content');
+                    content.style.setProperty('--genie-x', `${dx}px`);
+                    content.style.setProperty('--genie-y', `${dy}px`);
+                    content.style.setProperty('--genie-s', `${skew}deg`);
+
+                    // Populate and Activate
                     modalTitle.innerHTML = skillData[skillId].title;
                     modalBody.innerHTML = skillData[skillId].body;
                     modal.classList.add('active');
+                    document.body.classList.add('modal-open');
                 }
             });
         });
 
-        modalCloseBtn.addEventListener('click', () => {
+        function closeModal() {
             modal.classList.remove('active');
-        });
+            document.body.classList.remove('modal-open');
+        }
+
+        modalCloseBtn.addEventListener('click', closeModal);
 
         modal.addEventListener('click', (e) => {
             if (e.target === modal) {
-                modal.classList.remove('active');
+                closeModal();
             }
         });
 
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape') {
-                modal.classList.remove('active');
+                closeModal();
             }
         });
 
@@ -1255,13 +1373,18 @@
         });
 
         // --- Copy Email ---
-        function copyEmail() {
-            navigator.clipboard.writeText('aronemsy@gmail.com').then(() => {
-                const btn = document.getElementById('copy-btn');
-                btn.textContent = 'Copied! ✅';
+        function copyEmail(email) {
+            navigator.clipboard.writeText(email).then(() => {
+                const btn = document.getElementById('copy-icon-btn');
+                const svg = document.getElementById('copy-svg');
+                
+                // Change to Checkmark
+                const originalPath = svg.innerHTML;
+                svg.innerHTML = '<path d="M21,7L9,19L3.5,13.5L4.91,12.09L9,16.17L19.59,5.59L21,7Z" />';
                 btn.classList.add('copied');
+                
                 setTimeout(() => {
-                    btn.textContent = 'Copy Email';
+                    svg.innerHTML = originalPath;
                     btn.classList.remove('copied');
                 }, 2000);
             });
