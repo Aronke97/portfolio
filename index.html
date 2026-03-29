@@ -104,7 +104,7 @@
         }
 
         body.dark-mode #tech-canvas {
-            opacity: 0.75;
+            opacity: 0.45; /* Refined for better star contrast */
         }
         body.dark-mode #starry-canvas {
             opacity: 1;
@@ -155,14 +155,16 @@
             .glass-nav {
                 top: auto;
                 bottom: 24px;
-                padding: 10px 14px;
-                gap: 4px;
-                width: 95%;
-                justify-content: space-between;
+                padding: 12px 16px;
+                gap: 8px;
+                width: calc(100% - 32px);
+                max-width: 480px;
+                justify-content: center;
                 box-sizing: border-box;
                 overflow-x: auto;
                 -webkit-overflow-scrolling: touch;
                 scrollbar-width: none;
+                border-radius: 20px;
             }
 
             .glass-nav::-webkit-scrollbar {
@@ -170,10 +172,24 @@
             }
 
             .glass-nav a {
-                font-size: 0.75rem;
-                padding: 6px 8px;
+                font-size: 0.8rem;
+                padding: 8px 10px;
                 white-space: nowrap;
                 flex-shrink: 0;
+            }
+
+            .container {
+                padding: 80px 20px 140px;
+            }
+
+            .theme-toggle-container {
+                top: 16px;
+                right: 16px;
+                padding: 8px 12px;
+            }
+
+            .theme-label {
+                display: none; /* Hide label on mobile to save space */
             }
         }
 
@@ -606,6 +622,23 @@
             opacity: 1;
         }
 
+        @media (max-width: 600px) {
+            .modal-content {
+                padding: 24px;
+                border-radius: 16px;
+            }
+            .modal-title {
+                font-size: 1.25rem;
+                margin-bottom: 16px;
+            }
+            .modal-body {
+                font-size: 0.9rem;
+            }
+            .nav-blob {
+                display: none; /* Hide hover blob on mobile */
+            }
+        }
+
         body.dark-mode .modal-content {
             box-shadow: 0 30px 60px rgba(0, 0, 0, 0.55);
         }
@@ -889,23 +922,23 @@
         /* Responsive Hero Scaling */
         @media (max-width: 768px) {
             #hero-name {
-                font-size: 2.5rem !important;
-                letter-spacing: 0.3em !important;
+                font-size: 2.2rem !important;
+                letter-spacing: -0.01em !important;
             }
             
             @keyframes cinematic-focus {
                 0% { 
                     opacity: 0; 
                     filter: blur(12px); 
-                    letter-spacing: 0.3em; 
-                    transform: scale(1.1);
-                    text-shadow: 6px 0 0 rgba(0, 255, 255, 0), -6px 0 0 rgba(255, 0, 193, 0);
+                    letter-spacing: 0.15em; 
+                    transform: scale(1.05);
+                    text-shadow: 4px 0 0 rgba(0, 255, 255, 0), -4px 0 0 rgba(255, 0, 193, 0);
                 }
                 30% { 
                     opacity: 1; 
                     filter: blur(6px); 
-                    letter-spacing: 0.1em; 
-                    transform: scale(1.05);
+                    letter-spacing: 0.05em; 
+                    transform: scale(1.02);
                     text-shadow: 2px 0 0 rgba(0, 242, 255, 0.4), -2px 0 0 rgba(255, 0, 193, 0.4);
                 }
                 100% { 
@@ -915,20 +948,6 @@
                     transform: scale(1);
                     text-shadow: 0 0 0 rgba(0, 242, 255, 0), 0 0 0 rgba(255, 0, 193, 0);
                 }
-            }
-
-            .container {
-                padding: 0 20px;
-            }
-
-            .glass-nav {
-                padding: 10px 20px;
-                top: 16px;
-            }
-
-            .nav-link {
-                margin: 0 10px;
-                font-size: 0.85rem;
             }
         }
     </style>
@@ -1161,8 +1180,12 @@
         function clearPointer() {
             targetX = null;
             targetY = null;
+            mouse.x = null;
+            mouse.y = null;
             if (cursorGlow) cursorGlow.style.opacity = '0';
         }
+        
+        // Remove duplicate to follow
 
         function renderPointer() {
             if (targetX !== null && cursorGlow) {
@@ -1178,11 +1201,7 @@
         }
         renderPointer();
 
-        function clearPointer() {
-            mouse.x = null;
-            mouse.y = null;
-            if (cursorGlow) cursorGlow.style.opacity = '0';
-        }
+        // Raw coordinates cleared in unified function
 
         // Mouse
         window.addEventListener('mousemove', (e) => {
@@ -1445,6 +1464,8 @@
                 targetSection.classList.add('active-section');
                 window.history.pushState(null, null, `#${targetId}`);
                 setActiveLink(targetId);
+                // Resets scroll for smoother section viewing
+                window.scrollTo({ top: 0, behavior: 'auto' });
             }
         }
 
@@ -1456,6 +1477,7 @@
             });
 
             link.addEventListener('mouseenter', (e) => {
+                if (window.innerWidth < 800) return; // Disable hover blob on mobile
                 const rect = e.target.getBoundingClientRect();
                 const containerRect = navContainer.getBoundingClientRect();
                 const leftPos = rect.left - containerRect.left;
@@ -1534,15 +1556,17 @@
                     // Set CSS variables for the starting point
                     const dx = cardCenterX - screenCenterX;
                     const dy = cardCenterY - screenCenterY;
-                    
-                    // Distortion Logic: Skew based on direction (No rotation)
                     const dist = Math.sqrt(dx * dx + dy * dy);
-                    const skew = Math.min((dist / screenCenterX) * 20, 25); 
-
+                    
                     const content = modal.querySelector('.modal-content');
                     content.style.setProperty('--genie-x', `${dx}px`);
                     content.style.setProperty('--genie-y', `${dy}px`);
-                    content.style.setProperty('--genie-s', `${skew}deg`);
+                    
+                    // Distortion Logic: Skew based on direction (No rotation)
+                    // On mobile, reduce skew to prevent extreme distortion
+                    const maxSkew = window.innerWidth < 600 ? 12 : 25;
+                    const skewVal = Math.min((dist / screenCenterX) * 20, maxSkew);
+                    content.style.setProperty('--genie-s', `${skewVal}deg`);
 
                     // Populate and Activate
                     modalTitle.innerHTML = skillData[skillId].title;
@@ -1603,7 +1627,11 @@
         });
 
         // --- Copy Email ---
+        let isCopying = false;
         function copyEmail(email) {
+            if (isCopying) return;
+            isCopying = true;
+            
             navigator.clipboard.writeText(email).then(() => {
                 const btn = document.getElementById('copy-icon-btn');
                 const svg = document.getElementById('copy-svg');
@@ -1616,7 +1644,10 @@
                 setTimeout(() => {
                     svg.innerHTML = originalPath;
                     btn.classList.remove('copied');
+                    isCopying = false;
                 }, 2000);
+            }).catch(() => {
+                isCopying = false; // Reset on failure
             });
         }
     </script>
